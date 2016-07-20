@@ -63,7 +63,6 @@ class Editor extends React.Component {
 }
 
 Editor.propTypes = {
-  result: React.PropTypes.any,
   hasHistory: React.PropTypes.bool,
   isLoadingRuntime: React.PropTypes.bool,
   hasLoadedRuntime: React.PropTypes.bool,
@@ -73,7 +72,6 @@ Editor.propTypes = {
 export default connect(
   state => {
     return {
-      result: selectors.getResult(state),
       hasHistory: selectors.hasHistory(state),
       isLoadingRuntime: selectors.isLoadingRuntime(state),
       hasLoadedRuntime: selectors.hasLoadedRuntime(state),
