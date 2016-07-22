@@ -13,8 +13,8 @@ export default class REPLHistoryList extends React.Component {
       <div>
         {this.props.REPLHistory.map((item, index) => (
            <REPLHistoryItem key={index}
-                            input={item.code}
-                            result={item.result}/>
+                            input={item.get('code')}
+                            result={item.get('result')}/>
          ))}
       </div>
     );

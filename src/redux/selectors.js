@@ -62,7 +62,14 @@ export function getSource(state) {
 }
 
 export function getCode(state) {
-  return state.getIn(['REPL', 'code']);
+  if (state.getIn(['REPL', 'codeIndex']) === 0) {
+    return state.getIn(['REPL', 'code']);
+  }
+  return state.getIn(['REPL', 'REPLHistoryCodeCopy']);
+}
+
+export function getCodeIndex(state) {
+  return state.getIn(['REPL', 'codeIndex']);
 }
 
 export function isMoreMenuExpanded(state) {
