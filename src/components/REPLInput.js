@@ -5,7 +5,6 @@ import {changeREPLCode,
         run,
         getPrevREPLCode,
         getNextREPLCode,
-        displayNewREPLHistoryCode,
         clearREPLCode,
 }
 from '../redux/actionCreators';
@@ -48,11 +47,9 @@ export default class REPLInput extends React.Component {
                onKeyDown={event => {
                  if (event.key === "ArrowUp") {
                    this.props.prevREPLCode();
-                   this.props.displayNewREPLHistoryCode();
                  } else {
                    if (event.key === "ArrowDown") {
                      this.props.nextREPLCode();
-                     this.props.displayNewREPLHistoryCode();
                    }
                  }
                }} />
@@ -69,7 +66,6 @@ REPLInput.propTypes = {
   onRun: React.PropTypes.func,
   prevREPLCode: React.PropTypes.func,
   nextREPLCode: React.PropTypes.func,
-  displayNewREPLHistoryCode: React.PropTypes.func,
   clearREPLCode: React.PropTypes.func,
 };
 
@@ -84,7 +80,6 @@ export default connect(
       onRun: run,
       prevREPLCode: getPrevREPLCode,
       nextREPLCode: getNextREPLCode,
-      displayNewREPLHistoryCode: displayNewREPLHistoryCode,
       clearREPLCode: clearREPLCode,
     }, dispatch)
 )(REPLInput);
