@@ -37,7 +37,6 @@ const initialState = Immutable.Map({
     //REPLcodePosition refers to the code position represented visually
     //on-screen when using the REPL, not to an index in the REPL history
     REPLCodePosition: 0,
-    REPLHistoryCodeCopy: '',
     code: '',
     history: Immutable.List(),
   }),
@@ -62,53 +61,40 @@ function loadApi(state = initialState.get('loadApi'), action) {
   }
 }
 
+function setNextCodePosition(state, dir) {
+  let nextCodePosition = state.get('REPLCodePosition');
+  const history = state.get('history');
+  nextCodePosition += dir;
+  while (nextCodePosition > 0 &&
+         nextCodePosition < history.size &&
+         history.getIn([nextCodePosition, 'code']) === '') {
+    nextCodePosition += dir;
+  }
+  const nextCode = history.getIn([nextCodePosition, 'code']);
+  if (nextCode === '') {
+    return state;
+  }
+  return state.merge({
+    REPLCodePosition: nextCodePosition,
+    code: nextCode,
+  });
+}
+
 function REPL(state = initialState.get('REPL'), action) {
   switch (action.type) {
     case actType.GET_PREV_REPL_CODE:
-      //if REPLCodePosition hasn't reached the begining of history and
-      //the previous code isn't an empty string
-      if (state.get('REPLCodePosition') < state.get('history').size &&
-          state.getIn(['history',
-                       state.get('history').size - state.get('REPLCodePosition') - 1,
-                       'code']) !== '') {
-        state = state.set('REPLCodePosition', state.get('REPLCodePosition') + 1);
-        state = state
-                   .set(
-                     'REPLHistoryCodeCopy',
-                     state.getIn([
-                       'history',
-                       state.get('history').size - state.get('REPLCodePosition'),
-                       'code']));
-        return state;
-      }
-      return state;
+      return setNextCodePosition(state, -1);
     case actType.GET_NEXT_REPL_CODE:
-      if (state.get('REPLCodePosition') !== 0) {
-        state = state.set('REPLCodePosition', state.get('REPLCodePosition') - 1);
-        state = state.set('REPLHistoryCodeCopy',
-                          state.getIn([
-                            'history',
-                            state.get('history').size - state.get('REPLCodePosition'),
-                            'code']));
-        return state;
-      }
-      return state;
+      return setNextCodePosition(state, 1);
     case actType.CHANGE_REPL_CODE:
-      if (state.get('REPLCodePosition') > 0) {
-        return state.set('REPLHistoryCodeCopy', action.payload);
-      }
       return state.set('code', action.payload);
     case actType.RECEIVE_REPL_RESULT:
-      if (state.get('REPLCodePosition') > 0) {
-        return state.set('history', state.get('history').push(Immutable.Map({
-          code: state.get('REPLHistoryCodeCopy'),
+      return state
+        .update('history', history => history.push(Immutable.Map({
+          code: state.get('code'),
           result: action.payload
-        })));
-      }
-      return state.set('history', state.get('history').push(Immutable.Map({
-        code: state.get('code'),
-        result: action.payload
-      })));
+        })))
+        .set('REPLCodePosition', state.get('history').size);
     case actType.FINISH_EXECUTE:
       return state.set('code', '');
     case actType.CLEAR_REPL_CODE:
